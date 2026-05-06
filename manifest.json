@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+  "name": "Hello World",
+  "version": "1.0",
+  "browser_specific_settings": {
+    "gecko": { "id": "hello@example.com" }
+  },
+  "permissions": ["storage", "tabs", "webRequest", "webRequestBlocking", "<all_urls>"],
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": { "256": "icons/icon256.png" }
+  },
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+  "web_accessible_resources": ["blocked.html"]
+}
