@@ -1,11 +1,111 @@
 <!DOCTYPE html>
 <html>
-  <body style="width: 200px; padding: 16px; font-family: sans-serif;">
-    <h2>Hello World!</h2>
-    <p>My first extension.</p>
-    <input id="my-input" type="text" placeholder="Type something...">
-    <button id="submit-btn">Submit</button>
-    <button id="read-btn">Read</button>
-    <script src="popup.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      width: 320px;
+      padding: 16px;
+      background: #111;
+      color: #e0e0e0;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    h1 { font-size: 15px; font-weight: 700; letter-spacing: 0.5px; }
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 12px; }
+    .badge.locked { background: #3a1a1a; color: #ff6b6b; }
+    .badge.unlocked { background: #1a3a1a; color: #6bff6b; }
+    .icon-btn { background: none; border: none; color: #555; cursor: pointer; font-size: 15px; padding: 0; line-height: 1; }
+    .icon-btn:hover { color: #e0e0e0; }
+    /* Main view */
+    .problem { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #1e1e1e; }
+    .problem:last-child { border-bottom: none; }
+    .icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+    .info { flex: 1; min-width: 0; }
+    .title { font-size: 13px; font-weight: 500; line-height: 1.4; word-break: break-word; }
+    .solved .title { color: #6bff6b; }
+    .link { display: inline-block; margin-top: 3px; font-size: 11px; color: #4a9eff; text-decoration: none; }
+    .link:hover { text-decoration: underline; }
+    .progress { font-size: 11px; color: #555; margin-top: 12px; text-align: right; }
+    .divider { border-top: 1px solid #1e1e1e; margin: 14px 0 10px; }
+    .hist-header { font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .history { max-height: 160px; overflow-y: auto; }
+    .hist-item { font-size: 12px; padding: 3px 0; color: #666; display: flex; align-items: center; gap: 6px; }
+    .hist-item a { color: #666; text-decoration: none; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hist-item a:hover { color: #999; text-decoration: underline; }
+    .hist-empty { font-size: 12px; color: #333; padding: 3px 0; }
+    .remove-btn { background: none; border: none; color: #333; cursor: pointer; font-size: 15px; padding: 0 2px; flex-shrink: 0; line-height: 1; }
+    .remove-btn:hover { color: #ff6b6b; }
+    /* Difficulty badges */
+    .diff { font-size: 10px; font-weight: 600; padding: 1px 5px; border-radius: 3px; flex-shrink: 0; }
+    .diff-easy { background: #1a3a1a; color: #6bff6b; }
+    .diff-medium { background: #3a2e0a; color: #ffb84d; }
+    .diff-hard { background: #3a1a1a; color: #ff6b6b; }
+    /* Settings view */
+    .hidden { display: none; }
+    .settings-section { margin-bottom: 18px; }
+    .settings-label { font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 10px; }
+    .settings-note { font-size: 11px; color: #3a3a3a; margin-top: 6px; }
+    .point-adjuster { display: flex; align-items: center; gap: 14px; }
+    .adj-btn {
+      background: #1e1e1e;
+      border: 1px solid #2a2a2a;
+      color: #e0e0e0;
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .adj-btn:hover:not(:disabled) { background: #2a2a2a; border-color: #444; }
+    .adj-btn:disabled { color: #333; cursor: not-allowed; }
+    .pts-display { font-size: 15px; font-weight: 600; min-width: 44px; text-align: center; }
+    .reset-btn { background: none; border: none; color: #444; cursor: pointer; font-size: 12px; padding: 0; text-align: left; }
+    .reset-btn:hover, .reset-btn.confirm { color: #ff6b6b; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>locked-in</h1>
+    <div class="header-right">
+      <span id="badge" class="badge locked">locked</span>
+      <button id="settings-toggle" class="icon-btn" title="Settings">⚙</button>
+    </div>
+  </header>
+
+  <div id="main-view">
+    <div id="problems"></div>
+    <p id="progress" class="progress"></p>
+    <div class="divider"></div>
+    <p id="hist-header" class="hist-header"></p>
+    <div id="history" class="history"></div>
+  </div>
+
+  <div id="settings-view" class="hidden">
+    <div class="settings-section">
+      <label class="settings-label">Daily point goal</label>
+      <div class="point-adjuster">
+        <button id="pts-dec" class="adj-btn">−</button>
+        <span id="pts-display" class="pts-display"></span>
+        <button id="pts-inc" class="adj-btn">+</button>
+      </div>
+      <p class="settings-note">Easy = 1 pt &nbsp;·&nbsp; Med = 2 pts &nbsp;·&nbsp; Hard = 3 pts</p>
+      <p class="settings-note">Takes effect on next day's reset</p>
+    </div>
+    <div class="divider"></div>
+    <button id="reset-btn" class="reset-btn">Reset all progress</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
 </html>

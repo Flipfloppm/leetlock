@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "Hello World",
+  "name": "locked-in",
   "version": "1.0",
   "browser_specific_settings": {
     "gecko": { "id": "hello@example.com" }
@@ -14,5 +14,5 @@
     "scripts": ["background.js"],
     "persistent": true
   },
-  "web_accessible_resources": ["blocked.html"]
+  "web_accessible_resources": ["blocked.html", "blocked.js"]
 }
