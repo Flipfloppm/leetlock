@@ -72,6 +72,15 @@
     .pts-display { font-size: 15px; font-weight: 600; min-width: 44px; text-align: center; }
     .reset-btn { background: none; border: none; color: #444; cursor: pointer; font-size: 12px; padding: 0; text-align: left; }
     .reset-btn:hover, .reset-btn.confirm { color: #ff6b6b; }
+    .url-input-row { display: flex; gap: 6px; margin-bottom: 8px; }
+    .url-input { flex: 1; background: #1e1e1e; border: 1px solid #2a2a2a; color: #e0e0e0; border-radius: 4px; padding: 5px 8px; font-size: 12px; min-width: 0; }
+    .url-input:focus { outline: none; border-color: #444; }
+    .url-add-btn { background: #1e1e1e; border: 1px solid #2a2a2a; color: #e0e0e0; cursor: pointer; border-radius: 4px; padding: 5px 10px; font-size: 12px; flex-shrink: 0; }
+    .url-add-btn:hover { background: #2a2a2a; }
+    .url-item { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #888; padding: 3px 0; }
+    .url-remove { background: none; border: none; color: #333; cursor: pointer; font-size: 15px; padding: 0 2px; line-height: 1; }
+    .url-remove:hover { color: #ff6b6b; }
+    .url-empty { font-size: 12px; color: #333; }
   </style>
 </head>
 <body>
@@ -101,6 +110,15 @@
       </div>
       <p class="settings-note">Easy = 1 pt &nbsp;·&nbsp; Med = 2 pts &nbsp;·&nbsp; Hard = 3 pts</p>
       <p class="settings-note">Takes effect on next day's reset</p>
+    </div>
+    <div class="divider"></div>
+    <div class="settings-section">
+      <label class="settings-label">Blocked sites</label>
+      <div class="url-input-row">
+        <input id="url-input" class="url-input" type="text" placeholder="e.g. youtube.com">
+        <button id="url-add" class="url-add-btn">Add</button>
+      </div>
+      <div id="url-list"></div>
     </div>
     <div class="divider"></div>
     <button id="reset-btn" class="reset-btn">Reset all progress</button>

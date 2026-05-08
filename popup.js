@@ -108,6 +108,58 @@ document.getElementById('history').addEventListener('click', e => {
   })
 })
 
+// ── Blocked sites ────────────────────────────────────────────────────────────
+function renderUrlList(urls) {
+  const listEl = document.getElementById('url-list')
+  listEl.innerHTML = ''
+  if (urls.length === 0) {
+    listEl.innerHTML = '<div class="url-empty">No sites blocked</div>'
+    return
+  }
+  urls.forEach(url => {
+    const div = document.createElement('div')
+    div.className = 'url-item'
+    div.innerHTML = `<span>${url}</span><button class="url-remove" data-url="${url}">×</button>`
+    listEl.appendChild(div)
+  })
+}
+
+browser.storage.local.get('bannedWebsites').then(data => {
+  renderUrlList(data.bannedWebsites || [])
+})
+
+function addUrl() {
+  const input = document.getElementById('url-input')
+  const raw = input.value.trim()
+  if (!raw) return
+  let hostname
+  try {
+    hostname = new URL(raw.includes('://') ? raw : 'https://' + raw).hostname
+  } catch { return }
+  if (!hostname) return
+  input.value = ''
+  browser.storage.local.get('bannedWebsites').then(data => {
+    const urls = data.bannedWebsites || []
+    if (urls.includes(hostname)) return
+    urls.push(hostname)
+    browser.storage.local.set({ bannedWebsites: urls }).then(() => renderUrlList(urls))
+  })
+}
+
+document.getElementById('url-add').addEventListener('click', addUrl)
+document.getElementById('url-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addUrl()
+})
+
+document.getElementById('url-list').addEventListener('click', e => {
+  const btn = e.target.closest('.url-remove')
+  if (!btn) return
+  browser.storage.local.get('bannedWebsites').then(data => {
+    const urls = (data.bannedWebsites || []).filter(u => u !== btn.dataset.url)
+    browser.storage.local.set({ bannedWebsites: urls }).then(() => renderUrlList(urls))
+  })
+})
+
 // ── Reset all progress (two-step confirmation) ───────────────────────────────
 let resetPending = false
 let resetTimer = null

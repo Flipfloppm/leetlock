@@ -169,8 +169,29 @@ const NEETCODE_150 = [
   { title: "Reverse Integer", slug: "reverse-integer", difficulty: "medium" },
 ]
 
-const bannedWebsites = ["x.com", "www.youtube.com"]
 const blockedPageBase = browser.runtime.getURL("blocked.html")
+
+let bannedWebsites = []
+
+async function loadBannedWebsites() {
+  const data = await browser.storage.local.get('bannedWebsites')
+  if (data.bannedWebsites === undefined) {
+    bannedWebsites = ['x.com', 'youtube.com']
+    await browser.storage.local.set({ bannedWebsites })
+  } else {
+    bannedWebsites = data.bannedWebsites
+  }
+}
+
+function isHostnameBanned(hostname) {
+  return bannedWebsites.some(banned =>
+    hostname === banned || hostname.endsWith('.' + banned)
+  )
+}
+
+browser.storage.onChanged.addListener(changes => {
+  if (changes.bannedWebsites) bannedWebsites = changes.bannedWebsites.newValue || []
+})
 
 let dailyState = { date: null, problems: [], completed: [] }
 
@@ -254,6 +275,7 @@ function recordSolved(slug) {
   })
 }
 
+loadBannedWebsites()
 initDailyState()
 
 browser.webRequest.onBeforeRequest.addListener(
@@ -263,7 +285,7 @@ browser.webRequest.onBeforeRequest.addListener(
       initDailyState()
     }
     const url = new URL(details.url)
-    if (bannedWebsites.includes(url.hostname) && !isUnlocked()) {
+    if (isHostnameBanned(url.hostname) && !isUnlocked()) {
       const blockedPage = blockedPageBase + '?from=' + encodeURIComponent(details.url)
       return { redirectUrl: blockedPage }
     }
@@ -279,7 +301,12 @@ browser.webRequest.onBeforeRequest.addListener(
     if (!details.requestBody) return
     const raw = details.requestBody.raw
     if (!raw) return
-    const body = JSON.parse(new TextDecoder().decode(raw[0].bytes))
+    let body
+    try {
+      body = JSON.parse(new TextDecoder().decode(raw[0].bytes))
+    } catch {
+      return
+    }
     if (!body?.query?.includes('submissionDetails')) return
 
     fetch('https://leetcode.com/graphql', {

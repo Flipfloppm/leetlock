@@ -25,7 +25,16 @@ function render(problems, completed) {
   const btn = document.getElementById('continue')
   btn.disabled = !allDone
   if (allDone) {
-    btn.onclick = () => { window.location.href = from || 'about:newtab' }
+    btn.onclick = () => {
+      try {
+        const url = new URL(from)
+        if (url.protocol === 'http:' || url.protocol === 'https:') {
+          window.location.href = from
+          return
+        }
+      } catch {}
+      window.location.href = 'about:newtab'
+    }
   }
 }
 
