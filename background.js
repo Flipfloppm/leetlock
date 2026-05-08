@@ -193,10 +193,24 @@ browser.storage.onChanged.addListener(changes => {
   if (changes.bannedWebsites) bannedWebsites = changes.bannedWebsites.newValue || []
 })
 
+browser.runtime.onMessage.addListener(message => {
+  if (message?.type === 'reset-progress') {
+    initDailyState()
+  }
+})
+
 let dailyState = { date: null, problems: [], completed: [] }
+let streakState = { count: 0, lastCompletedDate: null }
 
 function getTodayStr() {
   return new Date().toLocaleDateString('en-CA')
+}
+
+function shiftLocalDate(dateStr, deltaDays) {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  const date = new Date(year, month - 1, day)
+  date.setDate(date.getDate() + deltaDays)
+  return date.toLocaleDateString('en-CA')
 }
 
 function sampleN(arr, n) {
@@ -230,7 +244,19 @@ function pickProblems(pool, target) {
 
 async function initDailyState() {
   const today = getTodayStr()
-  const data = await browser.storage.local.get(['todayDate', 'todayProblems', 'completedToday', 'allCompleted', 'pointTarget'])
+  const data = await browser.storage.local.get([
+    'todayDate',
+    'todayProblems',
+    'completedToday',
+    'allCompleted',
+    'pointTarget',
+    'streakCount',
+    'streakLastCompletedDate',
+  ])
+  streakState = {
+    count: data.streakCount || 0,
+    lastCompletedDate: data.streakLastCompletedDate || null,
+  }
   if (data.todayDate !== today) {
     const target = data.pointTarget || 3
     const doneSlugs = new Set((data.allCompleted || []).map(p => p.slug))
@@ -264,11 +290,29 @@ async function initDailyState() {
       completed: data.completedToday || [],
     }
   }
+
+  if (dailyState.date === today && isUnlocked()) {
+    await updateStreakIfNeeded(today)
+  }
 }
 
 function isUnlocked() {
   return dailyState.problems.length > 0 &&
     dailyState.problems.every(p => dailyState.completed.includes(p.slug))
+}
+
+async function updateStreakIfNeeded(today) {
+  if (streakState.lastCompletedDate === today) return
+
+  const yesterdayStr = shiftLocalDate(today, -1)
+
+  streakState.count = streakState.lastCompletedDate === yesterdayStr ? streakState.count + 1 : 1
+  streakState.lastCompletedDate = today
+
+  await browser.storage.local.set({
+    streakCount: streakState.count,
+    streakLastCompletedDate: streakState.lastCompletedDate,
+  })
 }
 
 function recordSolved(slug) {
@@ -281,6 +325,9 @@ function recordSolved(slug) {
     dailyState.completed.push(slug)
     browser.storage.local.set({ completedToday: dailyState.completed })
     console.log(`Solved today's problem: ${slug} (${dailyState.completed.length}/${dailyState.problems.length})`)
+    if (isUnlocked()) {
+      updateStreakIfNeeded(dailyState.date)
+    }
   }
 
   // Always persist to lifetime history
