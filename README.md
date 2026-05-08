@@ -11,7 +11,7 @@ Each day, the extension assigns problems from the NeetCode 150 weighted by diffi
 ## Installation
 
 1. Go to the [Releases](../../releases) page and download the latest `.xpi` file
-    - if you download the .xpi file from Firefox, it should automatically install the extension, otherwise proceed with the steps below
+    - If you download the .xpi file from Firefox, it should automatically install the extension, otherwise proceed with the steps below
 2. In Firefox, go to `about:addons`
 3. Click the gear icon → **Install Add-on From File**
 4. Select the downloaded `.xpi`
