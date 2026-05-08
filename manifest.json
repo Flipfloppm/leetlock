@@ -3,7 +3,12 @@
   "name": "locked-in",
   "version": "1.0",
   "browser_specific_settings": {
-    "gecko": { "id": "leetlock@yourname.com" }
+    "gecko": {
+      "id": "leetlock@franklin.com",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
   },
   "permissions": ["storage", "tabs", "webRequest", "webRequestBlocking", "<all_urls>"],
   "browser_action": {
@@ -14,9 +19,5 @@
     "scripts": ["background.js"],
     "persistent": true
   },
-  "web_accessible_resources": ["blocked.html", "blocked.js"],
-  "data_collection_permissions": {
-    "required": [],
-    "optional": []
-  }
+  "web_accessible_resources": ["blocked.html", "blocked.js"]
 }
