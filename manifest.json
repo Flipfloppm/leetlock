@@ -14,5 +14,9 @@
     "scripts": ["background.js"],
     "persistent": true
   },
-  "web_accessible_resources": ["blocked.html", "blocked.js"]
+  "web_accessible_resources": ["blocked.html", "blocked.js"],
+  "data_collection_permissions": {
+    "required": [],
+    "optional": []
+  }
 }
