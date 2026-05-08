@@ -6,6 +6,9 @@ Each day, the extension assigns problems from the NeetCode 150 weighted by diffi
 
 <img width="344" height="376" alt="image" src="https://github.com/user-attachments/assets/b827c6d6-8551-413c-8fb4-7120b12d3a79" />
 <img width="781" height="512" alt="Screenshot 2026-05-08 at 1 00 47 AM" src="https://github.com/user-attachments/assets/3b8a8925-fd92-4885-9f37-62cfbfa9c304" />
+<img width="347" height="348" alt="image" src="https://github.com/user-attachments/assets/7c1c8241-fe4a-483c-806f-8fc86a47dc76" />
+
+
 
 
 ## Installation
