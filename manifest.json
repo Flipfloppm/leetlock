@@ -3,7 +3,7 @@
   "name": "locked-in",
   "version": "1.0",
   "browser_specific_settings": {
-    "gecko": { "id": "hello@example.com" }
+    "gecko": { "id": "leetlock@yourname.com" }
   },
   "permissions": ["storage", "tabs", "webRequest", "webRequestBlocking", "<all_urls>"],
   "browser_action": {
