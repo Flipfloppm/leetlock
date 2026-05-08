@@ -1,6 +1,13 @@
 const params = new URLSearchParams(window.location.search)
 const from = params.get('from')
 
+const DIFF_LABEL = { easy: 'Easy', medium: 'Med', hard: 'Hard' }
+
+function diffBadge(difficulty) {
+  if (!difficulty) return ''
+  return `<span class="diff diff-${difficulty}">${DIFF_LABEL[difficulty]}</span>`
+}
+
 function render(problems, completed) {
   const solved = problems.filter(p => completed.includes(p.slug)).length
   const allDone = problems.length > 0 && solved === problems.length
@@ -14,7 +21,7 @@ function render(problems, completed) {
     div.innerHTML =
       `<span class="icon">${done ? '✓' : '○'}</span>` +
       `<div class="info">` +
-        `<div class="title">${problem.title}</div>` +
+        `<div class="title">${problem.title} ${diffBadge(problem.difficulty)}</div>` +
         `<a class="link" href="https://leetcode.com/problems/${problem.slug}/" target="_blank">Open on LeetCode ↗</a>` +
       `</div>`
     problemsEl.appendChild(div)

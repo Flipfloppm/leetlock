@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "leetlock",
-  "version": "1.1",
+  "version": "1.2",
   "browser_specific_settings": {
     "gecko": {
       "id": "leetlock@franklin.com",
