@@ -234,11 +234,29 @@ async function initDailyState() {
   if (data.todayDate !== today) {
     const target = data.pointTarget || 3
     const doneSlugs = new Set((data.allCompleted || []).map(p => p.slug))
-    const remaining = NEETCODE_150.filter(p => !doneSlugs.has(p.slug))
-    const pool = remaining.length >= 1 ? remaining : NEETCODE_150
+    const firstPassRemaining = NEETCODE_150.filter(p => !doneSlugs.has(p.slug))
+
+    let pool
+    let cycleRemaining = null
+
+    if (firstPassRemaining.length > 0) {
+      pool = firstPassRemaining
+    } else {
+      // All 150 done — use cycleRemaining to avoid repeats within a cycle
+      cycleRemaining = data.cycleRemaining || []
+      if (cycleRemaining.length === 0) cycleRemaining = NEETCODE_150.map(p => p.slug)
+      pool = NEETCODE_150.filter(p => cycleRemaining.includes(p.slug))
+    }
+
     const problems = pickProblems(pool, target)
     dailyState = { date: today, problems, completed: [] }
-    await browser.storage.local.set({ todayDate: today, todayProblems: problems, completedToday: [] })
+
+    const updates = { todayDate: today, todayProblems: problems, completedToday: [] }
+    if (cycleRemaining !== null) {
+      const picked = new Set(problems.map(p => p.slug))
+      updates.cycleRemaining = cycleRemaining.filter(s => !picked.has(s))
+    }
+    await browser.storage.local.set(updates)
   } else {
     dailyState = {
       date: today,

@@ -185,6 +185,7 @@ resetBtn.addEventListener('click', () => {
       completedToday: [],
       todayDate: null,
       todayProblems: [],
+      cycleRemaining: [],
     }).then(loadAndRender)
   }
 })
