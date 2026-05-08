@@ -1,4 +1,4 @@
-# locked-in
+# leetlock
 
 Stop doom scrolling! Disable websites until you've completed your LeetCode for the day.
 

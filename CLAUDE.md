@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**locked-in** is a Firefox WebExtension (Manifest V2) that blocks distracting websites until the user completes a LeetCode problem for the day.
+**leetlock** is a Firefox WebExtension (Manifest V2) that blocks distracting websites until the user completes a LeetCode problem for the day.
 
 ## Loading and Testing
 
