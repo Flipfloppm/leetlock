@@ -7,6 +7,10 @@ function diffBadge(difficulty) {
   return `<span class="diff diff-${difficulty}">${DIFF_LABEL[difficulty]}</span>`
 }
 
+function streakIcon(allDone) {
+  return allDone ? '🔥' : '🪵'
+}
+
 function render(problems, completed, all) {
   const solved = problems.filter(p => completed.includes(p.slug)).length
   const allDone = problems.length > 0 && solved === problems.length
@@ -52,12 +56,23 @@ function render(problems, completed, all) {
 }
 
 function loadAndRender() {
-  browser.storage.local.get(['todayProblems', 'completedToday', 'allCompleted']).then(data => {
-    render(data.todayProblems || [], data.completedToday || [], data.allCompleted || [])
+  browser.storage.local.get(['todayProblems', 'completedToday', 'allCompleted', 'streakCount']).then(data => {
+    const problems = data.todayProblems || []
+    const completed = data.completedToday || []
+    const all = data.allCompleted || []
+    const solved = problems.filter(p => completed.includes(p.slug)).length
+    const allDone = problems.length > 0 && solved === problems.length
+
+    render(problems, completed, all)
+    document.getElementById('streak').textContent = `${streakIcon(allDone)} ${data.streakCount || 0} day streak`
   })
 }
 
 loadAndRender()
+
+browser.storage.onChanged.addListener(() => {
+  loadAndRender()
+})
 
 // ── Settings toggle ──────────────────────────────────────────────────────────
 const settingsToggle = document.getElementById('settings-toggle')
@@ -186,6 +201,9 @@ resetBtn.addEventListener('click', () => {
       todayDate: null,
       todayProblems: [],
       cycleRemaining: [],
-    }).then(loadAndRender)
+      streakCount: 0,
+      streakLastCompletedDate: null,
+    }).then(() => browser.runtime.sendMessage({ type: 'reset-progress' }))
+      .then(loadAndRender)
   }
 })
