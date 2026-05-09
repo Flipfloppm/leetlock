@@ -82,6 +82,18 @@
     .url-remove { background: none; border: none; color: #333; cursor: pointer; font-size: 15px; padding: 0 2px; line-height: 1; }
     .url-remove:hover { color: #ff6b6b; }
     .url-empty { font-size: 12px; color: #333; }
+    /* Set selector */
+    .set-selector { display: flex; gap: 6px; flex-wrap: wrap; }
+    .set-btn { background: #1e1e1e; border: 1px solid #2a2a2a; color: #666; cursor: pointer; border-radius: 4px; padding: 4px 10px; font-size: 12px; flex-shrink: 0; }
+    .set-btn:hover:not(:disabled) { border-color: #444; color: #e0e0e0; }
+    .set-btn.active { background: #1a3a1a; border-color: #2a5a2a; color: #6bff6b; }
+    .set-btn:disabled { color: #2a2a2a; cursor: not-allowed; border-color: #1e1e1e; }
+    /* Custom problem set */
+    .custom-status { font-size: 11px; margin-top: 4px; min-height: 14px; }
+    .custom-list-toggle { background: none; border: none; color: #555; cursor: pointer; font-size: 11px; padding: 4px 0 2px; text-align: left; width: 100%; }
+    .custom-list-toggle:hover { color: #888; }
+    .custom-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #888; padding: 3px 0; }
+    .custom-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -104,6 +116,12 @@
 
   <div id="settings-view" class="hidden">
     <div class="settings-section">
+      <label class="settings-label">Problem set</label>
+      <div id="set-selector" class="set-selector"></div>
+      <p class="settings-note">Changing set resets today's problems</p>
+    </div>
+    <div class="divider"></div>
+    <div class="settings-section">
       <label class="settings-label">Daily point goal</label>
       <div class="point-adjuster">
         <button id="pts-dec" class="adj-btn">−</button>
@@ -112,6 +130,17 @@
       </div>
       <p class="settings-note">Easy = 1 pt &nbsp;·&nbsp; Med = 2 pts &nbsp;·&nbsp; Hard = 3 pts</p>
       <p class="settings-note">Takes effect on next day's reset</p>
+    </div>
+    <div class="divider"></div>
+    <div class="settings-section">
+      <label class="settings-label">Custom problem set</label>
+      <div class="url-input-row">
+        <input id="custom-input" class="url-input" type="text" placeholder="two-sum or leetcode.com/problems/...">
+        <button id="custom-add" class="url-add-btn">Add</button>
+      </div>
+      <p id="custom-status" class="custom-status"></p>
+      <button id="custom-list-toggle" class="custom-list-toggle hidden"></button>
+      <div id="custom-list"></div>
     </div>
     <div class="divider"></div>
     <div class="settings-section">
@@ -126,6 +155,7 @@
     <button id="reset-btn" class="reset-btn">Reset all progress</button>
   </div>
 
+  <script src="problems.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>
